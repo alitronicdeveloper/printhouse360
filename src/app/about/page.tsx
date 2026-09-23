@@ -1,78 +1,10 @@
 "use client";
 
-import { useRef, useState, useEffect, ReactNode } from "react";
 import Link from "next/link";
 import { ArrowUpRight, Target, Heart, Zap, Users, Award, Globe } from "lucide-react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-
-function Reveal({
-  children,
-  from = "left",
-  delay = 0,
-  className = "",
-}: {
-  children: ReactNode;
-  from?: "left" | "right";
-  delay?: number;
-  className?: string;
-}) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => setVisible(entry.isIntersecting),
-      { threshold: 0.15, rootMargin: "0px 0px -80px 0px" }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-
-  const translate = from === "left" ? "-100px" : "100px";
-  const rotate = from === "left" ? "-3deg" : "3deg";
-
-  return (
-    <div
-      ref={ref}
-      className={className}
-      style={{
-        transform: visible ? "translateX(0) rotate(0deg)" : `translateX(${translate}) rotate(${rotate})`,
-        opacity: visible ? 1 : 0,
-        transition: `all 0.9s cubic-bezier(0.16, 1, 0.3, 1) ${delay}s`,
-        willChange: "transform, opacity",
-      }}
-    >
-      {children}
-    </div>
-  );
-}
-
-function VibrateBox({ children, className = "" }: { children: ReactNode; className?: string }) {
-  const [hovering, setHovering] = useState(false);
-  return (
-    <div
-      onMouseEnter={() => setHovering(true)}
-      onMouseLeave={() => setHovering(false)}
-      className={`relative transition-transform duration-300 ${hovering ? "vibrate" : ""} ${className}`}
-      style={{ perspective: "1000px", transformStyle: "preserve-3d" }}
-      onMouseMove={(e) => {
-        const rect = e.currentTarget.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        const cx = rect.width / 2;
-        const cy = rect.height / 2;
-        const rotY = ((x - cx) / cx) * 6;
-        const rotX = ((cy - y) / cy) * 6;
-        e.currentTarget.style.transform = `perspective(1000px) rotateX(${rotX}deg) rotateY(${rotY}deg) scale(1.04)`;
-      }}
-    >
-      {children}
-    </div>
-  );
-}
+import { Reveal, VibrateBox } from "@/components/ui/Reveal";
 
 const values = [
   { icon: Target, title: "Quality", description: "Every project printed to international standard. We never let anything less than our best out the door." },
@@ -96,19 +28,22 @@ export default function AboutPage() {
       <Header />
 
       <main className="relative">
-        {/* ============ HERO — VIDEO MANAGER + TEXT JUU ============ */}
+        {/* HERO */}
         <section className="relative min-h-screen h-screen w-full overflow-hidden flex items-center">
           <video
             autoPlay
             muted
             loop
             playsInline
+            preload="metadata"
+            poster="/images/portfolio/work2.jpg"
+            disablePictureInPicture
             className="absolute inset-0 w-full h-full object-cover"
+            {...{ "webkit-playsinline": "true" }}
           >
             <source src="/videos/work/video4.mp4" type="video/mp4" />
           </video>
 
-          {/* Overlay */}
           <div aria-hidden className="absolute inset-0 bg-ink/65" />
           <div
             aria-hidden
@@ -139,7 +74,6 @@ export default function AboutPage() {
                     WebkitBackgroundClip: "text",
                     WebkitTextFillColor: "transparent",
                     backgroundClip: "text",
-                    textShadow: "0 6px 40px rgba(0,0,0,0.6)",
                   }}
                 >
                   Print your<br />vision.
@@ -148,22 +82,15 @@ export default function AboutPage() {
             </Reveal>
 
             <Reveal from="left" delay={0.2}>
-              <p className="mt-8 max-w-xl text-base md:text-lg text-white/80 leading-relaxed" style={{ textShadow: "0 2px 15px rgba(0,0,0,0.8)" }}>
-                We're a modern printing house based in Dar es Salaam, Tanzania. From a single t-shirt to a full brand identity — we bring ideas to life with precision, speed, and a personal touch.
+              <p className="mt-8 max-w-xl text-base md:text-lg text-white/80 leading-relaxed">
+                We're a modern printing house based in Dar es Salaam, Tanzania. From a single t-shirt to a full brand identity.
               </p>
-            </Reveal>
-
-            <Reveal from="left" delay={0.3}>
-              <div className="mt-16 flex items-center gap-4 text-xs font-mono uppercase tracking-[0.3em] text-white/60">
-                <span className="w-10 h-px bg-white/40" />
-                Scroll to explore
-              </div>
             </Reveal>
           </div>
         </section>
 
-        {/* ============ STORY ============ */}
-        <section className="relative py-24 md:py-32 border-b border-white/5 overflow-hidden bg-ink">
+        {/* STORY */}
+        <section className="relative py-24 md:py-32 border-b border-white/5 bg-ink">
           <div className="container max-w-5xl">
             <div className="grid md:grid-cols-2 gap-12 items-start">
               <Reveal from="left">
@@ -186,32 +113,18 @@ export default function AboutPage() {
                   <p>
                     From business cards to billboards, from food packaging to promotional items — we do it all with care, craft, and love.
                   </p>
-
-                  <ul className="mt-8 space-y-3">
-                    {[
-                      "Modern digital and offset machines",
-                      "Experienced in-house design team",
-                      "Delivery across Tanzania",
-                      "24/7 customer support",
-                    ].map((item) => (
-                      <li key={item} className="flex items-center gap-3 text-white">
-                        <span className="w-1.5 h-1.5 rounded-full bg-pink shrink-0" />
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
                 </div>
               </Reveal>
             </div>
           </div>
         </section>
 
-        {/* ============ STATS ============ */}
+        {/* STATS */}
         <section className="relative py-20 md:py-32 border-b border-white/5 bg-ink">
           <div className="container">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-4">
               {stats.map((stat, i) => (
-                <Reveal key={stat.label} from={i % 2 === 0 ? "left" : "right"} delay={i * 0.1}>
+                <Reveal key={stat.label} from={i % 2 === 0 ? "left" : "right"} delay={i * 0.08}>
                   <div className="md:border-l border-white/10 md:pl-6 first:border-l-0 first:pl-0">
                     <div className="font-mono text-[10px] text-pink">{String(i + 1).padStart(2, "0")}</div>
                     <div
@@ -233,7 +146,7 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* ============ VALUES ============ */}
+        {/* VALUES */}
         <section className="relative py-24 md:py-32 border-b border-white/5 bg-ink">
           <div className="container">
             <Reveal from="left" className="text-center mb-20">
@@ -243,14 +156,11 @@ export default function AboutPage() {
               <h2 className="mt-5 font-display font-medium text-3xl md:text-5xl lg:text-6xl leading-[1.1] tracking-tight" style={{ color: "#fef3c7" }}>
                 What drives us.
               </h2>
-              <p className="mt-5 max-w-lg mx-auto text-sm md:text-base text-white/60 leading-relaxed">
-                The principles that guide every project we take on.
-              </p>
             </Reveal>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {values.map((v, i) => (
-                <Reveal key={v.title} from={i % 2 === 0 ? "left" : "right"} delay={(i % 3) * 0.1}>
+                <Reveal key={v.title} from={i % 2 === 0 ? "left" : "right"} delay={(i % 3) * 0.08}>
                   <VibrateBox className="group rounded-2xl border border-white/10 bg-white/[0.02] backdrop-blur-sm p-8 hover:border-pink/60 transition-colors cursor-pointer overflow-hidden">
                     <span className="absolute top-0 left-0 w-12 h-px bg-gradient-to-r from-pink to-transparent" />
                     <span className="absolute top-0 left-0 w-px h-12 bg-gradient-to-b from-pink to-transparent" />
@@ -270,9 +180,9 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* ============ CTA ============ */}
+        {/* CTA */}
         <section className="relative py-24 md:py-40 overflow-hidden bg-ink">
-          <div aria-hidden className="absolute -top-40 left-1/2 -translate-x-1/2 w-[600px] h-[400px] rounded-full bg-pink/15 blur-[120px]" />
+          <div aria-hidden className="absolute -top-40 left-1/2 -translate-x-1/2 w-[600px] h-[400px] rounded-full bg-pink/15 blur-[80px] md:blur-[120px]" />
 
           <div className="container relative max-w-3xl text-center">
             <Reveal from="left">
@@ -321,35 +231,6 @@ export default function AboutPage() {
             </Reveal>
           </div>
         </section>
-
-        <style jsx global>{`
-          @keyframes vibrate {
-            0%, 100% { transform: translate(0, 0) rotate(0); }
-            10% { transform: translate(-1px, -1px) rotate(-0.5deg); }
-            20% { transform: translate(1px, 0px) rotate(0.5deg); }
-            30% { transform: translate(-1px, 1px) rotate(-0.3deg); }
-            40% { transform: translate(1px, -1px) rotate(0.3deg); }
-            50% { transform: translate(-1px, 0px) rotate(0); }
-            60% { transform: translate(1px, 1px) rotate(0.4deg); }
-            70% { transform: translate(-1px, -1px) rotate(-0.4deg); }
-            80% { transform: translate(0px, 1px) rotate(0.2deg); }
-            90% { transform: translate(1px, 0px) rotate(-0.2deg); }
-          }
-          .vibrate {
-            animation: vibrate 0.35s linear infinite;
-          }
-          @keyframes sendGlow {
-            0%, 100% {
-              box-shadow: 0 0 20px rgba(236,72,153,0.6), 0 0 40px rgba(251,191,36,0.4);
-            }
-            50% {
-              box-shadow: 0 0 30px rgba(236,72,153,0.9), 0 0 60px rgba(251,191,36,0.6);
-            }
-          }
-          .send-glow {
-            animation: sendGlow 2s ease-in-out infinite;
-          }
-        `}</style>
       </main>
 
       <Footer />

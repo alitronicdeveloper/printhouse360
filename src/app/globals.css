@@ -67,3 +67,64 @@ body {
   to { opacity: 1; transform: translateY(0); }
 }
 .animate-fadeUp { animation: fadeUp 0.5s both; }
+
+/* ============================================================
+   MOBILE PERFORMANCE + VIBRATION DISABLE
+   ============================================================ */
+
+/* Zima vibrate kwenye simu */
+@media (hover: none) and (pointer: coarse) {
+  .vibrate {
+    animation: none !important;
+  }
+}
+
+@keyframes vibrate {
+  0%, 100% { transform: translate(0, 0) rotate(0); }
+  10% { transform: translate(-1px, -1px) rotate(-0.5deg); }
+  20% { transform: translate(1px, 0px) rotate(0.5deg); }
+  30% { transform: translate(-1px, 1px) rotate(-0.3deg); }
+  40% { transform: translate(1px, -1px) rotate(0.3deg); }
+  50% { transform: translate(-1px, 0px) rotate(0); }
+  60% { transform: translate(1px, 1px) rotate(0.4deg); }
+  70% { transform: translate(-1px, -1px) rotate(-0.4deg); }
+  80% { transform: translate(0px, 1px) rotate(0.2deg); }
+  90% { transform: translate(1px, 0px) rotate(-0.2deg); }
+}
+
+.vibrate {
+  animation: vibrate 0.35s linear infinite;
+}
+
+@keyframes sendGlow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(236,72,153,0.6), 0 0 40px rgba(251,191,36,0.4);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(236,72,153,0.9), 0 0 60px rgba(251,191,36,0.6);
+  }
+}
+
+.send-glow {
+  animation: sendGlow 2s ease-in-out infinite;
+}
+
+/* Simu — performance */
+@media (max-width: 768px) {
+  /* Punguza blur kwenye simu (heavy) */
+  .blur-\[120px\] {
+    filter: blur(40px) !important;
+  }
+  /* Zima animations za glow kwenye simu — heavy */
+  .send-glow {
+    animation: none !important;
+    box-shadow: 0 0 15px rgba(236,72,153,0.5);
+  }
+}
+
+/* Video — onyesha kwenye iOS */
+video {
+  -webkit-playsinline: true;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
