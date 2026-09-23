@@ -72,7 +72,7 @@ export function VibrateBox({ children, className = "" }: { children: ReactNode; 
           // Reset transform on leave
         }
       }}
-      className={`relative transition-transform duration-300 ${hovering && canHover ? "vibrate" : ""} ${className}`}
+      className={`relative transition-transform duration-300 ${className}`}
       style={canHover ? { perspective: "1000px", transformStyle: "preserve-3d" } : undefined}
       onMouseMove={(e) => {
         if (!canHover) return;

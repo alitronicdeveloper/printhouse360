@@ -3,8 +3,9 @@
 :root {
   --ink: #0a0a1f;
   --ink-soft: #12122b;
-  --cyan: #06b6d4;
-  --orange: #f97316;
+  --pink: #ec4899;
+  --pink-dark: #db2777;
+  --yellow: #facc15;
   --cream: #f8f7f4;
   --white: #ffffff;
   --muted: #a1a1aa;
@@ -14,8 +15,9 @@
 @theme inline {
   --color-ink: var(--ink);
   --color-ink-soft: var(--ink-soft);
-  --color-cyan: var(--cyan);
-  --color-orange: var(--orange);
+  --color-pink: var(--pink);
+  --color-pink-dark: var(--pink-dark);
+  --color-yellow: var(--yellow);
   --color-cream: var(--cream);
   --color-white: var(--white);
   --color-muted: var(--muted);
@@ -24,8 +26,14 @@
   --font-mono: var(--font-jetbrains);
 }
 
-* { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   background: var(--ink);
   color: var(--cream);
@@ -33,22 +41,68 @@ body {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
-::selection { background: var(--cyan); color: var(--ink); }
 
-.container { width: 100%; max-width: 1280px; margin-inline: auto; padding-inline: 1.5rem; }
-@media (min-width: 768px) { .container { padding-inline: 2rem; } }
-@media (min-width: 1024px) { .container { padding-inline: 3rem; } }
+::selection {
+  background: var(--pink);
+  color: var(--white);
+}
 
-.section { padding-block: 5rem; }
-@media (min-width: 768px) { .section { padding-block: 7rem; } }
+.container {
+  width: 100%;
+  max-width: 1280px;
+  margin-inline: auto;
+  padding-inline: 1.5rem;
+}
 
-.heading-xl { font-family: var(--font-bricolage), system-ui, sans-serif; font-size: clamp(3rem, 8vw, 7rem); line-height: 0.95; letter-spacing: -0.04em; font-weight: 800; }
-.heading-lg { font-family: var(--font-bricolage), system-ui, sans-serif; font-size: clamp(2.25rem, 5vw, 4rem); line-height: 1; letter-spacing: -0.03em; font-weight: 800; }
-.heading-md { font-family: var(--font-bricolage), system-ui, sans-serif; font-size: clamp(1.5rem, 3vw, 2.25rem); line-height: 1.1; letter-spacing: -0.02em; font-weight: 700; }
+@media (min-width: 768px) {
+  .container {
+    padding-inline: 2rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    padding-inline: 3rem;
+  }
+}
+
+.section {
+  padding-block: 5rem;
+}
+
+@media (min-width: 768px) {
+  .section {
+    padding-block: 7rem;
+  }
+}
+
+.heading-xl {
+  font-family: var(--font-bricolage), system-ui, sans-serif;
+  font-size: clamp(3rem, 8vw, 7rem);
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+  font-weight: 800;
+}
+
+.heading-lg {
+  font-family: var(--font-bricolage), system-ui, sans-serif;
+  font-size: clamp(2.25rem, 5vw, 4rem);
+  line-height: 1;
+  letter-spacing: -0.03em;
+  font-weight: 800;
+}
+
+.heading-md {
+  font-family: var(--font-bricolage), system-ui, sans-serif;
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  font-weight: 700;
+}
 
 .text-muted { color: var(--muted); }
-.text-cyan { color: var(--cyan); }
-.text-orange { color: var(--orange); }
+.text-pink { color: var(--pink); }
+.text-yellow { color: var(--yellow); }
 .bg-ink { background: var(--ink); }
 .bg-ink-soft { background: var(--ink-soft); }
 .bg-cream { background: var(--cream); color: var(--ink); }
@@ -58,6 +112,7 @@ body {
   from { transform: translateX(0); }
   to { transform: translateX(-50%); }
 }
+
 .marquee { overflow: hidden; white-space: nowrap; }
 .marquee__track { display: inline-flex; animation: marquee 30s linear infinite; }
 .marquee__item { padding-inline: 1.5rem; }
@@ -66,35 +121,8 @@ body {
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
 .animate-fadeUp { animation: fadeUp 0.5s both; }
-
-/* ============================================================
-   MOBILE PERFORMANCE + VIBRATION DISABLE
-   ============================================================ */
-
-/* Zima vibrate kwenye simu */
-@media (hover: none) and (pointer: coarse) {
-  .vibrate {
-    animation: none !important;
-  }
-}
-
-@keyframes vibrate {
-  0%, 100% { transform: translate(0, 0) rotate(0); }
-  10% { transform: translate(-1px, -1px) rotate(-0.5deg); }
-  20% { transform: translate(1px, 0px) rotate(0.5deg); }
-  30% { transform: translate(-1px, 1px) rotate(-0.3deg); }
-  40% { transform: translate(1px, -1px) rotate(0.3deg); }
-  50% { transform: translate(-1px, 0px) rotate(0); }
-  60% { transform: translate(1px, 1px) rotate(0.4deg); }
-  70% { transform: translate(-1px, -1px) rotate(-0.4deg); }
-  80% { transform: translate(0px, 1px) rotate(0.2deg); }
-  90% { transform: translate(1px, 0px) rotate(-0.2deg); }
-}
-
-.vibrate {
-  animation: vibrate 0.35s linear infinite;
-}
 
 @keyframes sendGlow {
   0%, 100% {
@@ -109,20 +137,13 @@ body {
   animation: sendGlow 2s ease-in-out infinite;
 }
 
-/* Simu — performance */
 @media (max-width: 768px) {
-  /* Punguza blur kwenye simu (heavy) */
-  .blur-\[120px\] {
-    filter: blur(40px) !important;
-  }
-  /* Zima animations za glow kwenye simu — heavy */
   .send-glow {
-    animation: none !important;
+    animation: none;
     box-shadow: 0 0 15px rgba(236,72,153,0.5);
   }
 }
 
-/* Video — onyesha kwenye iOS */
 video {
   -webkit-playsinline: true;
   -webkit-transform: translateZ(0);

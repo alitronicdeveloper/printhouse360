@@ -1,11 +1,12 @@
 "use client";
 
-import { useRef, useState, useEffect, ReactNode } from "react";
+import { useRef, useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Volume2, VolumeX, ChevronDown } from "lucide-react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import { Reveal } from "@/components/ui/Reveal";
 import { siteConfig } from "@/data/site";
 
 const heroVideos = [
@@ -32,97 +33,6 @@ const services = [
 ];
 
 const clients = ["DRTC", "Zash", "Imperial Healthcare", "MK Tech Africa", "Tedx Kivukoni", "Taste Point"];
-
-/* ============================================================
-   REVEAL WRAPPER — Slide-in from left/right, reverses on scroll up
-   ============================================================ */
-function Reveal({
-  children,
-  from = "left",
-  delay = 0,
-  className = "",
-}: {
-  children: ReactNode;
-  from?: "left" | "right";
-  delay?: number;
-  className?: string;
-}) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        // Inaonyesha ukiingia, inaficha ukiondoka (scroll juu au chini)
-        setVisible(entry.isIntersecting);
-      },
-      { threshold: 0.15, rootMargin: "0px 0px -80px 0px" }
-    );
-
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-
-  const translate = from === "left" ? "-100px" : "100px";
-  const rotate = from === "left" ? "-3deg" : "3deg";
-
-  return (
-    <div
-      ref={ref}
-      className={className}
-      style={{
-        transform: visible
-          ? "translateX(0) rotate(0deg)"
-          : `translateX(${translate}) rotate(${rotate})`,
-        opacity: visible ? 1 : 0,
-        transition: `all 0.9s cubic-bezier(0.16, 1, 0.3, 1) ${delay}s`,
-        willChange: "transform, opacity",
-      }}
-    >
-      {children}
-    </div>
-  );
-}
-
-/* ============================================================
-   VIBRATE BOX — Vibrates on hover
-   ============================================================ */
-function VibrateBox({
-  children,
-  className = "",
-}: {
-  children: ReactNode;
-  className?: string;
-}) {
-  const [hovering, setHovering] = useState(false);
-
-  return (
-    <div
-      onMouseEnter={() => setHovering(true)}
-      onMouseLeave={() => setHovering(false)}
-      className={`relative transition-transform duration-300 ${hovering ? "vibrate" : ""} ${className}`}
-      style={{
-        perspective: "1000px",
-        transformStyle: "preserve-3d",
-      }}
-      onMouseMove={(e) => {
-        const rect = e.currentTarget.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        const cx = rect.width / 2;
-        const cy = rect.height / 2;
-        const rotY = ((x - cx) / cx) * 6;
-        const rotX = ((cy - y) / cy) * 6;
-        e.currentTarget.style.transform = `perspective(1000px) rotateX(${rotX}deg) rotateY(${rotY}deg) scale(1.04)`;
-      }}
-    >
-      {children}
-    </div>
-  );
-}
 
 export default function Home() {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -160,16 +70,27 @@ export default function Home() {
             autoPlay
             muted
             playsInline
+            loop
+            preload="metadata"
             onEnded={handleVideoEnd}
+            disablePictureInPicture
+            poster="/images/portfolio/work1.jpg"
             className="absolute inset-0 w-full h-full object-cover"
+            {...{ "webkit-playsinline": "true" }}
           >
             <source src={heroVideos[currentVideo]} type="video/mp4" />
           </video>
 
-          <div aria-hidden className="absolute inset-0 bg-ink/15" />
-          <div aria-hidden className="absolute inset-0" style={{
-            background: "radial-gradient(ellipse at center, rgba(10,10,31,0.4) 0%, rgba(10,10,31,0.05) 55%, rgba(10,10,31,0.5) 100%)",
-          }} />
+          {/* Overlay — nyepesi sana */}
+          <div aria-hidden className="absolute inset-0 bg-ink/10" />
+          <div
+            aria-hidden
+            className="absolute inset-0"
+            style={{
+              background:
+                "radial-gradient(ellipse at center, rgba(10,10,31,0.35) 0%, rgba(10,10,31,0.05) 55%, rgba(10,10,31,0.4) 100%)",
+            }}
+          />
 
           <div className="relative z-10 h-full flex flex-col">
             <div className="h-20" />
@@ -221,8 +142,10 @@ export default function Home() {
         {scrollSections.map((section, i) => (
           <section key={i} className="sticky top-0 h-screen min-h-150 w-full overflow-hidden bg-ink" style={{ zIndex: i + 1 }}>
             <Image src={section.image} alt={section.title} fill priority={i === 0} className="object-cover" sizes="100vw" />
-            <div aria-hidden className="absolute inset-0 bg-ink/15" />
-            <div aria-hidden className="absolute inset-0" style={{ background: "radial-gradient(ellipse at center, rgba(10,10,31,0.45) 0%, rgba(10,10,31,0.05) 55%, rgba(10,10,31,0.55) 100%)" }} />
+
+            {/* Overlay — nyepesi */}
+            <div aria-hidden className="absolute inset-0 bg-ink/10" />
+            <div aria-hidden className="absolute inset-0" style={{ background: "radial-gradient(ellipse at center, rgba(10,10,31,0.4) 0%, rgba(10,10,31,0.05) 55%, rgba(10,10,31,0.5) 100%)" }} />
 
             <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-6">
               <Reveal from={i % 2 === 0 ? "left" : "right"}>
@@ -251,7 +174,7 @@ export default function Home() {
           </section>
         ))}
 
-        {/* ============ SERVICES ============ */}
+        {/* ============ SERVICES NA VIDEO ============ */}
         <section id="services" className="relative py-24 md:py-40 border-b border-white/5 bg-ink" style={{ zIndex: 10 }}>
           <div className="container">
             <div className="text-center mb-20">
@@ -263,33 +186,41 @@ export default function Home() {
                   Everything for your brand.
                 </h2>
               </Reveal>
-              <Reveal from="left" delay={0.2}>
-                <p className="mt-5 max-w-md mx-auto text-sm md:text-base text-white/70 leading-relaxed">
-                  Full-service printing — from design to delivery.
-                </p>
-              </Reveal>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {services.map((s, i) => (
                 <Reveal key={s.title} from={i % 2 === 0 ? "left" : "right"} delay={i * 0.08}>
-                  <VibrateBox className="group relative aspect-square rounded-2xl border border-white/10 bg-ink-soft overflow-hidden hover:border-pink/50 transition-colors cursor-pointer">
-                    {s.video ? (
-                      <video autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover">
-                        <source src={s.video} type="video/mp4" />
-                      </video>
-                    ) : (
-                      <div className="absolute inset-0" style={{ background: `linear-gradient(135deg, hsl(${(i * 60) % 360}, 55%, 25%), hsl(${(i * 60 + 80) % 360}, 65%, 15%))` }} />
-                    )}
+                  <div className="group relative aspect-square rounded-2xl border border-white/10 bg-ink-soft overflow-hidden hover:border-pink/50 transition-colors">
+                    <video
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                      preload="metadata"
+                      disablePictureInPicture
+                      poster="/images/portfolio/work1.jpg"
+                      className="absolute inset-0 w-full h-full object-cover"
+                      {...{ "webkit-playsinline": "true" }}
+                    >
+                      <source src={s.video} type="video/mp4" />
+                    </video>
 
-                    <div aria-hidden className="absolute inset-0 bg-ink/40" />
-                    <div aria-hidden className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(10,10,31,0.85) 0%, rgba(10,10,31,0.2) 50%, transparent 100%)" }} />
+                    {/* Overlay — nyepesi sana ili video ionekane */}
+                    <div
+                      aria-hidden
+                      className="absolute inset-0 pointer-events-none"
+                      style={{
+                        background:
+                          "linear-gradient(to top, rgba(10,10,31,0.9) 0%, rgba(10,10,31,0.3) 40%, rgba(10,10,31,0.05) 100%)",
+                      }}
+                    />
 
                     <span className="absolute top-6 left-6 font-mono text-[10px] tracking-widest text-pink z-10">
                       {String(i + 1).padStart(2, "0")}
                     </span>
 
-                    <div className="absolute inset-0 p-6 md:p-8 flex flex-col justify-end z-10">
+                    <div className="absolute inset-x-0 bottom-0 p-6 md:p-8 z-10">
                       <h3 className="font-display font-medium text-xl md:text-2xl leading-tight" style={{ color: "#fef3c7", textShadow: "0 2px 15px rgba(0,0,0,0.95)" }}>
                         {s.title}
                       </h3>
@@ -297,7 +228,7 @@ export default function Home() {
                         {s.subtitle}
                       </p>
                     </div>
-                  </VibrateBox>
+                  </div>
                 </Reveal>
               ))}
             </div>
@@ -324,50 +255,6 @@ export default function Home() {
 
         {/* ============ CONTACT ============ */}
         <ContactSection />
-
-        {/* ============================================================
-           GLOBAL STYLES — animations
-           ============================================================ */}
-        <style jsx global>{`
-          @keyframes vibrate {
-            0%, 100% { transform: translate(0, 0) rotate(0); }
-            10% { transform: translate(-1px, -1px) rotate(-0.5deg); }
-            20% { transform: translate(1px, 0px) rotate(0.5deg); }
-            30% { transform: translate(-1px, 1px) rotate(-0.3deg); }
-            40% { transform: translate(1px, -1px) rotate(0.3deg); }
-            50% { transform: translate(-1px, 0px) rotate(0); }
-            60% { transform: translate(1px, 1px) rotate(0.4deg); }
-            70% { transform: translate(-1px, -1px) rotate(-0.4deg); }
-            80% { transform: translate(0px, 1px) rotate(0.2deg); }
-            90% { transform: translate(1px, 0px) rotate(-0.2deg); }
-          }
-          .vibrate {
-            animation: vibrate 0.35s linear infinite;
-          }
-
-          @keyframes sendGlow {
-            0%, 100% {
-              box-shadow:
-                0 0 20px rgba(236,72,153,0.6),
-                0 0 40px rgba(251,191,36,0.4),
-                0 0 60px rgba(236,72,153,0.2);
-            }
-            50% {
-              box-shadow:
-                0 0 30px rgba(236,72,153,0.9),
-                0 0 60px rgba(251,191,36,0.6),
-                0 0 90px rgba(236,72,153,0.4);
-            }
-          }
-          .send-glow {
-            animation: sendGlow 2s ease-in-out infinite;
-          }
-
-          @keyframes pixelPulse {
-            0%, 100% { opacity: 0.6; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.4); }
-          }
-        `}</style>
       </main>
 
       <Footer />
@@ -388,12 +275,7 @@ function ContactSection() {
   ];
 
   return (
-    <section
-      id="contact"
-      className="relative overflow-hidden bg-ink border-t border-white/5"
-      style={{ zIndex: 10 }}
-    >
-      {/* Grid background */}
+    <section id="contact" className="relative overflow-hidden bg-ink border-t border-white/5" style={{ zIndex: 10 }}>
       <div
         aria-hidden
         className="absolute inset-0 opacity-[0.04]"
@@ -403,14 +285,11 @@ function ContactSection() {
           backgroundSize: "80px 80px",
         }}
       />
-
-      {/* Glow blobs */}
-      <div aria-hidden className="absolute -top-40 -left-40 w-[500px] h-[500px] rounded-full bg-pink/20 blur-[120px]" />
-      <div aria-hidden className="absolute -bottom-40 -right-40 w-[500px] h-[500px] rounded-full bg-yellow/20 blur-[120px]" />
+      <div aria-hidden className="absolute -top-40 -left-40 w-[500px] h-[500px] rounded-full bg-pink/20 blur-[80px] md:blur-[120px]" />
+      <div aria-hidden className="absolute -bottom-40 -right-40 w-[500px] h-[500px] rounded-full bg-yellow/20 blur-[80px] md:blur-[120px]" />
 
       <div className="relative py-24 md:py-40">
         <div className="container max-w-5xl">
-          {/* Heading */}
           <div className="text-center mb-20">
             <Reveal from="left">
               <span className="inline-flex items-center gap-3 font-mono text-[10px] md:text-xs uppercase tracking-[0.4em] text-pink">
@@ -438,42 +317,21 @@ function ContactSection() {
                 </span>
               </h2>
             </Reveal>
-
-            <Reveal from="left" delay={0.2}>
-              <p className="mt-8 max-w-lg mx-auto text-base md:text-lg text-white/60 leading-relaxed">
-                Call, WhatsApp, or visit our studio in Zanaki. We respond within 24 hours.
-              </p>
-            </Reveal>
           </div>
 
           <div className="grid md:grid-cols-5 gap-8 items-start">
-            {/* Contact info — slides from LEFT */}
             <div className="md:col-span-2 space-y-6">
               {infoItems.map((item, i) => (
                 <Reveal key={item.label} from="left" delay={i * 0.1}>
-                  <VibrateBox className="group relative rounded-2xl border border-white/10 bg-white/[0.02] backdrop-blur-sm p-6 overflow-hidden hover:border-pink/60 transition-colors cursor-pointer">
+                  <div className="group relative rounded-2xl border border-white/10 bg-white/[0.02] backdrop-blur-sm p-6 overflow-hidden hover:border-pink/60 transition-colors">
                     <span className="absolute top-0 left-0 w-12 h-px bg-gradient-to-r from-pink to-transparent" />
                     <span className="absolute top-0 left-0 w-px h-12 bg-gradient-to-b from-pink to-transparent" />
-                    <span className="absolute bottom-0 right-0 w-12 h-px bg-gradient-to-l from-yellow to-transparent" />
-                    <span className="absolute bottom-0 right-0 w-px h-12 bg-gradient-to-t from-yellow to-transparent" />
-
-                    <span
-                      aria-hidden
-                      className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
-                      style={{
-                        background:
-                          "radial-gradient(circle at 50% 50%, rgba(236,72,153,0.15) 0%, transparent 70%)",
-                      }}
-                    />
 
                     <div className="relative font-mono text-[10px] uppercase tracking-[0.3em] text-pink/80">
                       {item.label}
                     </div>
                     {item.href ? (
-                      <a
-                        href={item.href}
-                        className="relative mt-3 block font-display font-medium text-lg md:text-xl text-white hover:text-pink transition-colors"
-                      >
+                      <a href={item.href} className="relative mt-3 block font-display font-medium text-lg md:text-xl text-white hover:text-pink transition-colors">
                         {item.value}
                       </a>
                     ) : (
@@ -481,12 +339,11 @@ function ContactSection() {
                         {item.value}
                       </div>
                     )}
-                  </VibrateBox>
+                  </div>
                 </Reveal>
               ))}
             </div>
 
-            {/* Form — slides from RIGHT */}
             <Reveal from="right" delay={0.3} className="md:col-span-3">
               <div className="relative rounded-3xl p-[1px] bg-gradient-to-br from-pink via-white/10 to-yellow">
                 <form action="#" className="relative rounded-3xl bg-ink p-6 md:p-10 space-y-5">
@@ -526,10 +383,6 @@ function ContactSection() {
   );
 }
 
-/* ============================================================
-   Glowing Input
-   ============================================================ */
-
 function GlowInput({
   label,
   type,
@@ -567,9 +420,8 @@ function GlowInput({
         />
         {focused && (
           <>
-            <span className="pointer-events-none absolute -top-1 -left-1 w-2 h-2 rounded-full bg-pink" style={{ animation: "pixelPulse 1s ease-in-out infinite" }} />
-            <span className="pointer-events-none absolute -bottom-1 -right-1 w-2 h-2 rounded-full bg-yellow" style={{ animation: "pixelPulse 1s ease-in-out infinite", animationDelay: "0.3s" }} />
-            <span className="pointer-events-none absolute top-1/2 -right-1 w-1.5 h-1.5 rounded-full bg-pink" style={{ animation: "pixelPulse 1s ease-in-out infinite", animationDelay: "0.6s" }} />
+            <span className="pointer-events-none absolute -top-1 -left-1 w-2 h-2 rounded-full bg-pink animate-ping" />
+            <span className="pointer-events-none absolute -bottom-1 -right-1 w-2 h-2 rounded-full bg-yellow animate-ping" style={{ animationDelay: "0.2s" }} />
           </>
         )}
       </div>
@@ -611,8 +463,8 @@ function GlowTextarea({
         />
         {focused && (
           <>
-            <span className="pointer-events-none absolute -top-1 -left-1 w-2 h-2 rounded-full bg-pink" style={{ animation: "pixelPulse 1s ease-in-out infinite" }} />
-            <span className="pointer-events-none absolute -bottom-1 -right-1 w-2 h-2 rounded-full bg-yellow" style={{ animation: "pixelPulse 1s ease-in-out infinite", animationDelay: "0.3s" }} />
+            <span className="pointer-events-none absolute -top-1 -left-1 w-2 h-2 rounded-full bg-pink animate-ping" />
+            <span className="pointer-events-none absolute -bottom-1 -right-1 w-2 h-2 rounded-full bg-yellow animate-ping" style={{ animationDelay: "0.2s" }} />
           </>
         )}
       </div>

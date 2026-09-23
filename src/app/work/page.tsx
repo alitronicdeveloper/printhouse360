@@ -1,9 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, ChevronLeft, ChevronRight } from "lucide-react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { Reveal } from "@/components/ui/Reveal";
@@ -21,11 +20,28 @@ const works = [
 
 export default function WorkPage() {
   const [activeCategory, setActiveCategory] = useState("All");
+  const [isMobile, setIsMobile] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    setIsMobile(window.innerWidth < 768);
+    const onResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
 
   const filteredWorks =
     activeCategory === "All"
       ? works
       : works.filter((w) => w.category === activeCategory);
+
+  // Reset index when category changes
+  useEffect(() => {
+    setCurrentIndex(0);
+  }, [activeCategory]);
+
+  const next = () => setCurrentIndex((i) => (i + 1) % filteredWorks.length);
+  const prev = () => setCurrentIndex((i) => (i - 1 + filteredWorks.length) % filteredWorks.length);
 
   return (
     <>
@@ -33,15 +49,15 @@ export default function WorkPage() {
 
       <main className="relative">
         {/* HERO */}
-        <section className="relative min-h-screen h-screen w-full overflow-hidden flex items-center">
+        <section className="relative min-h-screen w-full overflow-hidden flex items-center">
           <video
             autoPlay
             muted
             loop
             playsInline
             preload="metadata"
-            poster="/images/portfolio/work1.jpg"
             disablePictureInPicture
+            poster="/images/portfolio/work1.jpg"
             className="absolute inset-0 w-full h-full object-cover"
             {...{ "webkit-playsinline": "true" }}
           >
@@ -58,7 +74,7 @@ export default function WorkPage() {
             }}
           />
 
-          <div className="container relative z-10">
+          <div className="container relative z-10 py-24">
             <Reveal from="left">
               <span className="inline-flex items-center gap-3 font-mono text-[10px] md:text-xs uppercase tracking-[0.4em] text-pink">
                 <span className="w-8 h-px bg-pink" />
@@ -94,14 +110,14 @@ export default function WorkPage() {
         </section>
 
         {/* FILTER */}
-        <section className="py-8 md:py-12 border-b border-white/5 sticky top-16 z-40 backdrop-blur-xl bg-ink/80">
+        <section className="py-6 md:py-12 border-b border-white/5 bg-ink">
           <div className="container">
             <div className="flex flex-wrap items-center gap-2">
               {categories.map((cat) => (
                 <button
                   key={cat}
                   onClick={() => setActiveCategory(cat)}
-                  className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${
+                  className={`px-4 py-2 md:px-5 md:py-2.5 rounded-full text-xs md:text-sm font-medium transition-all duration-300 ${
                     activeCategory === cat
                       ? "bg-gradient-to-r from-pink to-yellow text-ink"
                       : "border border-white/15 text-white/70 hover:border-pink/60 hover:text-white"
@@ -114,48 +130,126 @@ export default function WorkPage() {
           </div>
         </section>
 
-        {/* GRID */}
-        <section className="py-16 md:py-24 bg-ink">
+        {/* GRID — desktop, CAROUSEL — mobile */}
+        <section className="py-12 md:py-24 bg-ink">
           <div className="container">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredWorks.map((w, i) => (
-                <Reveal key={w.title} from={i % 2 === 0 ? "left" : "right"} delay={(i % 3) * 0.08}>
-                  <div className="group relative block aspect-[4/5] rounded-2xl overflow-hidden border border-white/10 hover:border-pink/50 transition-colors">
-                    <video
-                      autoPlay
-                      muted
-                      loop
-                      playsInline
-                      preload="metadata"
-                      poster="/images/portfolio/work1.jpg"
-                      disablePictureInPicture
-                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                      {...{ "webkit-playsinline": "true" }}
-                    >
-                      <source src={w.video} type="video/mp4" />
-                    </video>
-
-                    <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/30 to-transparent opacity-90 group-hover:opacity-70 transition-opacity pointer-events-none" />
-
-                    <div className="absolute top-5 right-5 grid place-items-center w-11 h-11 rounded-full bg-cream text-ink opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300 pointer-events-none">
-                      <ArrowUpRight className="w-5 h-5" />
-                    </div>
-
-                    <div className="absolute inset-0 p-6 flex flex-col justify-end pointer-events-none">
-                      <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-pink">
-                        {w.category}
-                      </span>
-                      <h3
-                        className="mt-2 font-display font-medium text-xl md:text-2xl leading-tight"
-                        style={{ color: "#fef3c7", textShadow: "0 2px 15px rgba(0,0,0,0.95)" }}
+            {/* DESKTOP GRID */}
+            {!isMobile && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredWorks.map((w, i) => (
+                  <Reveal key={w.title} from={i % 2 === 0 ? "left" : "right"} delay={(i % 3) * 0.08}>
+                    <div className="group relative block aspect-[4/5] rounded-2xl overflow-hidden border border-white/10 hover:border-pink/50 transition-colors">
+                      <video
+                        autoPlay
+                        muted
+                        loop
+                        playsInline
+                        preload="metadata"
+                        disablePictureInPicture
+                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        {...{ "webkit-playsinline": "true" }}
                       >
-                        {w.title}
-                      </h3>
+                        <source src={w.video} type="video/mp4" />
+                      </video>
+                      <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/30 to-transparent opacity-90 pointer-events-none" />
+                      <div className="absolute inset-0 p-6 flex flex-col justify-end pointer-events-none">
+                        <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-pink">
+                          {w.category}
+                        </span>
+                        <h3
+                          className="mt-2 font-display font-medium text-xl md:text-2xl leading-tight"
+                          style={{ color: "#fef3c7", textShadow: "0 2px 15px rgba(0,0,0,0.95)" }}
+                        >
+                          {w.title}
+                        </h3>
+                      </div>
                     </div>
+                  </Reveal>
+                ))}
+              </div>
+            )}
+
+            {/* MOBILE CAROUSEL — video moja kwa wakati */}
+            {isMobile && filteredWorks.length > 0 && (
+              <div className="relative">
+                {/* Current video */}
+                <div className="relative aspect-[4/5] rounded-2xl overflow-hidden border border-white/10">
+                  <video
+                    key={filteredWorks[currentIndex].video}
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    preload="metadata"
+                    disablePictureInPicture
+                    poster="/images/portfolio/work1.jpg"
+                    className="absolute inset-0 w-full h-full object-cover"
+                    {...{ "webkit-playsinline": "true" }}
+                  >
+                    <source src={filteredWorks[currentIndex].video} type="video/mp4" />
+                  </video>
+
+                  <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/30 to-transparent pointer-events-none" />
+
+                  {/* Info */}
+                  <div className="absolute inset-x-0 bottom-0 p-5 pointer-events-none">
+                    <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-pink">
+                      {filteredWorks[currentIndex].category}
+                    </span>
+                    <h3
+                      className="mt-2 font-display font-medium text-xl leading-tight"
+                      style={{ color: "#fef3c7", textShadow: "0 2px 15px rgba(0,0,0,0.95)" }}
+                    >
+                      {filteredWorks[currentIndex].title}
+                    </h3>
                   </div>
-                </Reveal>
-              ))}
-            </div>
+
+                  {/* Counter */}
+                  <div className="absolute top-4 right-4 px-3 py-1.5 rounded-full bg-ink/70 backdrop-blur text-xs font-mono text-white">
+                    {currentIndex + 1} / {filteredWorks.length}
+                  </div>
+                </div>
+
+                {/* Navigation */}
+                <div className="mt-6 flex items-center justify-center gap-3">
+                  <button
+                    onClick={prev}
+                    aria-label="Previous"
+                    className="grid place-items-center w-11 h-11 rounded-full border border-white/20 text-white hover:border-pink hover:text-pink transition-colors"
+                  >
+                    <ChevronLeft className="w-5 h-5" />
+                  </button>
+
+                  {/* Dots */}
+                  <div className="flex items-center gap-2">
+                    {filteredWorks.map((_, i) => (
+                      <button
+                        key={i}
+                        onClick={() => setCurrentIndex(i)}
+                        aria-label={`Go to video ${i + 1}`}
+                        className={`h-1.5 rounded-full transition-all duration-300 ${
+                          i === currentIndex ? "w-6 bg-pink" : "w-1.5 bg-white/30"
+                        }`}
+                      />
+                    ))}
+                  </div>
+
+                  <button
+                    onClick={next}
+                    aria-label="Next"
+                    className="grid place-items-center w-11 h-11 rounded-full border border-white/20 text-white hover:border-pink hover:text-pink transition-colors"
+                  >
+                    <ChevronRight className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {filteredWorks.length === 0 && (
+              <div className="text-center py-20">
+                <p className="text-white/60">No projects in this category yet.</p>
+              </div>
+            )}
           </div>
         </section>
 
